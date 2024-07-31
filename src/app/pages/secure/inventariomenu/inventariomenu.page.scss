@@ -1,0 +1,49 @@
+.header {
+    font-weight: bold;
+    background-color: #0066cc; /* New header color */
+    color: #ffffff; /* New header text color */
+  }
+  
+  .data {
+    padding: 8px;
+    background-color: #e6f7ff; /* New data background color */
+    color: #000000; /* New data text color */
+  }
+  
+  .header-row ion-col,
+  .data-row ion-col {
+    border: 1px solid #003366; /* New border color */
+    border-width: 0 0 1px 0;
+  }
+  
+  .action-buttons {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .header-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .col-label {
+    flex: 1;
+  }
+  
+  .col-value {
+    flex: 3;
+    text-align: left;
+  }
+  
+  .transparent-grid {
+    width: 100%;
+  }
+  
+  .pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 16px;
+  }
+  
