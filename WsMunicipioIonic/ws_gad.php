@@ -936,3 +936,38 @@ if ($post['accion'] == 'cargar_productos') {
     }
     echo $respuesta;
 }
+// Guardar registro final
+if ($post['accion'] == 'guardar_registro_final') {
+    $registro_inicial_id = $post['registro_inicial_id'];
+    $cantidad_vendida = $post['cantidad_vendida'];
+    $productos_muestra = $post['productos_muestra'];
+    $productos_desechados = $post['productos_desechados'];
+    $dinero_total = $post['dinero_total']; // Recibe el dinero total calculado
+
+    // Preparar la consulta
+    $stmt = mysqli_prepare($mysqli, "INSERT INTO inventario_registro_final (RF_CANTIDAD_VENDIDA, RF_DINERO_TOTAL, RF_PRODUCTOS_MUESTRA, RF_PRODUCTOS_DESECHADOS, RI_CODIGO) VALUES (?, ?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "idiii", $cantidad_vendida, $dinero_total, $productos_muestra, $productos_desechados, $registro_inicial_id);
+
+    // Ejecutar la consulta y verificar si fue exitosa
+    if (mysqli_stmt_execute($stmt)) {
+        $respuesta = json_encode(array('estado' => true, 'mensaje' => 'Datos del registro final guardados exitosamente'));
+    } else {
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => 'Error al guardar los datos del registro final: ' . mysqli_stmt_error($stmt)));
+    }
+
+    mysqli_stmt_close($stmt);
+    echo $respuesta;
+}
+
+// Obtener el último registro inicial
+if ($post['accion'] == 'ultimo_registro_inicial') {
+    $sentencia = "SELECT RI_CODIGO AS id FROM inventario_registro_inicial ORDER BY RI_CODIGO DESC LIMIT 1";
+    $rs = mysqli_query($mysqli, $sentencia);
+
+    if ($row = mysqli_fetch_assoc($rs)) {
+        $respuesta = json_encode(array('estado' => true, 'datos' => $row));
+    } else {
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => "No se encontró el último registro inicial"));
+    }
+    echo $respuesta;
+}

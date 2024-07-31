@@ -8,70 +8,62 @@
   </ion-button>
 
   <ion-grid class="transparent-grid custom-table">
-    <!-- Fila para la fecha -->
-    <ion-row class="header-row">
+    <!-- Fila para la fecha actual -->
+    <ion-row>
       <ion-col class="header col-label" color="light">Fecha</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">{{ producto.fecha }}</ion-col>
+      <ion-col class="data col-value">
+        {{ currentDate }}
+      </ion-col>
     </ion-row>
+    <br>
 
     <!-- Fila para el producto -->
     <ion-row class="header-row">
       <ion-col class="header col-label" color="light">Producto</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">{{ producto.nombre }}</ion-col>
+      <ion-col class="data col-value">
+        Nombre del Producto <!-- Placeholder -->
+        <ion-button size="small" fill="clear" color="primary" (click)="toggleProductInfo()">
+          <ion-icon slot="icon-only" [name]="showProductInfo ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+        </ion-button>
+      </ion-col>
     </ion-row>
 
-    <!-- Fila para la cantidad -->
-    <ion-row class="header-row">
+    <!-- Mostrar información del producto y opciones si showProductInfo es true -->
+    <ion-row *ngIf="showProductInfo">
       <ion-col class="header col-label" color="light">Cantidad</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">{{ producto.cantidad_inicial }}</ion-col>
+      <ion-col class="data col-value">Cantidad Inicial</ion-col> <!-- Placeholder -->
     </ion-row>
 
-    <!-- Fila para el precio -->
-    <ion-row class="header-row">
+    <ion-row *ngIf="showProductInfo">
       <ion-col class="header col-label" color="light">Precio</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">{{ producto.precio }}</ion-col>
+      <ion-col class="data col-value">Precio</ion-col> <!-- Placeholder -->
     </ion-row>
 
-    <!-- Fila para la ganancia -->
-    <ion-row class="header-row">
+    <ion-row *ngIf="showProductInfo">
       <ion-col class="header col-label" color="light">Ganancia</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">{{ producto.ganancia }}</ion-col>
+      <ion-col class="data col-value">Ganancia</ion-col> <!-- Placeholder -->
     </ion-row>
 
-    <!-- Fila para la pérdida -->
-    <ion-row class="header-row">
+    <ion-row *ngIf="showProductInfo">
       <ion-col class="header col-label" color="light">Pérdida</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">{{ producto.perdida }}</ion-col>
+      <ion-col class="data col-value">Pérdida</ion-col> <!-- Placeholder -->
     </ion-row>
 
-    <!-- Fila para las opciones -->
-    <ion-row class="header-row">
+    <ion-row *ngIf="showProductInfo">
       <ion-col class="header col-label" color="light">Opciones</ion-col>
-      <ion-col class="data col-value" *ngFor="let producto of getPaginatedProductos()">
+      <ion-col class="data col-value">
         <div class="action-buttons">
-          <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto(producto.codigo)">
+          <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto('codigo-placeholder')">
             <ion-icon slot="icon-only" name="create-outline"></ion-icon>
           </ion-button>
-          <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.codigo)">
+          <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto('codigo-placeholder')">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-button>
-          <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto(producto.codigo)">
+          <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto('codigo-placeholder')">
             <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
           </ion-button>
         </div>
       </ion-col>
     </ion-row>
   </ion-grid>
-
-  <ion-row class="pagination-row">
-    <ion-col class="pagination-controls">
-      <ion-button (click)="previousPage()" [disabled]="page === 1">
-        Anterior
-      </ion-button>
-      <span>Página {{ page }} de {{ totalPages }}</span>
-      <ion-button (click)="nextPage()" [disabled]="page === totalPages">
-        Siguiente
-      </ion-button>
-    </ion-col>
-  </ion-row>
 </ion-content>
