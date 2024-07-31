@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-inventariomenu',
@@ -8,11 +9,13 @@ import { Component, OnInit } from '@angular/core';
 export class InventariomenuPage implements OnInit {
   showProductInfo: boolean = false;
   currentDate: string;
+  productos: any[] = [];
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
   ngOnInit() {
     this.currentDate = this.getCurrentDate();
+    this.loadProducts();
   }
 
   getCurrentDate(): string {
@@ -20,23 +23,41 @@ export class InventariomenuPage implements OnInit {
     return now.toLocaleDateString('es-ES'); // Formato de fecha en español
   }
 
-  toggleProductInfo() {
-    this.showProductInfo = !this.showProductInfo;
+  loadProducts() {
+    this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', { accion: 'cargar_productos' })
+      .subscribe(
+        (response) => {
+          if (response.estado) {
+            this.productos = response.datos.map(producto => ({
+              ...producto,
+              showInfo: false // Inicialmente, la información está oculta
+            }));
+          } else {
+            console.error('Error al cargar productos:', response.mensaje);
+          }
+        },
+        (error) => {
+          console.error('Error en la solicitud:', error);
+        }
+      );
+  }
+
+  toggleProductInfo(producto) {
+    producto.showInfo = !producto.showInfo;
   }
 
   editarProducto(codigo: string) {
-    // Implementar la lógica para editar el producto
+    console.log('Editar producto con código:', codigo);
+    // Implementar lógica para editar producto
   }
 
   eliminarProducto(codigo: string) {
-    // Implementar la lógica para eliminar el producto
+    console.log('Eliminar producto con código:', codigo);
+    // Implementar lógica para eliminar producto
   }
 
   actualizarProducto(codigo: string) {
-    // Implementar la lógica para actualizar el producto
-  }
-
-  filterProductos(event: any) {
-    // Implementar la lógica para filtrar productos
+    console.log('Actualizar producto con código:', codigo);
+    // Implementar lógica para actualizar producto
   }
 }

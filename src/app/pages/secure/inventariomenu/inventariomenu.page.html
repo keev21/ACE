@@ -17,53 +17,55 @@
     </ion-row>
     <br>
 
-    <!-- Fila para el producto -->
-    <ion-row class="header-row">
-      <ion-col class="header col-label" color="light">Producto</ion-col>
-      <ion-col class="data col-value">
-        Nombre del Producto <!-- Placeholder -->
-        <ion-button size="small" fill="clear" color="primary" (click)="toggleProductInfo()">
-          <ion-icon slot="icon-only" [name]="showProductInfo ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-        </ion-button>
+    <!-- Fila para la lista de productos -->
+    <ion-row *ngFor="let producto of productos">
+      <ion-col class="header-row">
+        <ion-col class="header col-label" color="light">Producto</ion-col>
+        <ion-col class="data col-value">
+          {{ producto.nombre }}
+          <ion-button size="small" fill="clear" color="primary" (click)="toggleProductInfo(producto)">
+            <ion-icon slot="icon-only" [name]="producto.showInfo ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
+          </ion-button>
+        </ion-col>
       </ion-col>
-    </ion-row>
 
-    <!-- Mostrar información del producto y opciones si showProductInfo es true -->
-    <ion-row *ngIf="showProductInfo">
-      <ion-col class="header col-label" color="light">Cantidad</ion-col>
-      <ion-col class="data col-value">Cantidad Inicial</ion-col> <!-- Placeholder -->
-    </ion-row>
+      <!-- Mostrar información del producto y opciones si showInfo es true -->
+      <ion-row *ngIf="producto.showInfo">
+        <ion-col class="header col-label" color="light">Cantidad</ion-col>
+        <ion-col class="data col-value">{{ producto.cantidadInicial }}</ion-col>
+      </ion-row>
 
-    <ion-row *ngIf="showProductInfo">
-      <ion-col class="header col-label" color="light">Precio</ion-col>
-      <ion-col class="data col-value">Precio</ion-col> <!-- Placeholder -->
-    </ion-row>
+      <ion-row *ngIf="producto.showInfo">
+        <ion-col class="header col-label" color="light">Precio</ion-col>
+        <ion-col class="data col-value">{{ producto.precio }}</ion-col>
+      </ion-row>
 
-    <ion-row *ngIf="showProductInfo">
-      <ion-col class="header col-label" color="light">Ganancia</ion-col>
-      <ion-col class="data col-value">Ganancia</ion-col> <!-- Placeholder -->
-    </ion-row>
+      <ion-row *ngIf="producto.showInfo">
+        <ion-col class="header col-label" color="light">Ganancia</ion-col>
+        <ion-col class="data col-value">{{ producto.ganancia }}</ion-col>
+      </ion-row>
 
-    <ion-row *ngIf="showProductInfo">
-      <ion-col class="header col-label" color="light">Pérdida</ion-col>
-      <ion-col class="data col-value">Pérdida</ion-col> <!-- Placeholder -->
-    </ion-row>
+      <ion-row *ngIf="producto.showInfo">
+        <ion-col class="header col-label" color="light">Pérdida</ion-col>
+        <ion-col class="data col-value">{{ producto.perdida }}</ion-col>
+      </ion-row>
 
-    <ion-row *ngIf="showProductInfo">
-      <ion-col class="header col-label" color="light">Opciones</ion-col>
-      <ion-col class="data col-value">
-        <div class="action-buttons">
-          <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto('codigo-placeholder')">
-            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-          </ion-button>
-          <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto('codigo-placeholder')">
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-button>
-          <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto('codigo-placeholder')">
-            <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
-          </ion-button>
-        </div>
-      </ion-col>
+      <ion-row *ngIf="producto.showInfo">
+        <ion-col class="header col-label" color="light">Opciones</ion-col>
+        <ion-col class="data col-value">
+          <div class="action-buttons">
+            <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto(producto.codigo)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.codigo)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+            <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto(producto.codigo)">
+              <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
     </ion-row>
   </ion-grid>
 </ion-content>

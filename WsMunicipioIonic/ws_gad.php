@@ -971,3 +971,32 @@ if ($post['accion'] == 'ultimo_registro_inicial') {
     }
     echo $respuesta;
 }
+
+
+if ($post['accion'] == 'cargar_productos') {
+    $fecha_actual = date("Y-m-d");
+
+    // Consultar la base de datos para obtener los productos de la fecha actual
+    $sentencia = sprintf("
+        SELECT p.nombre AS nombre, i.RI_CANTIDAD_INICIAL AS cantidadInicial, rf.RF_DINERO_TOTAL AS precio, 
+               rs.RS_GANANCIA_PERDIDA AS ganancia, rs.RS_PERDIDA_REGALADOS AS perdida, 
+               i.RI_CODIGO AS codigo
+        FROM inventario_registro_inicial i
+        JOIN inventario_registro_final rf ON i.RI_CODIGO = rf.RF_CODIGO
+        JOIN inventario_registro_resultado rs ON rf.RF_CODIGO = rs.RS_CODIGO
+        JOIN productos p ON i.RI_CODIGO = p.codigo
+        WHERE i.RI_FECHA = '$fecha_actual'
+    ");
+
+    $rs = mysqli_query($mysqli, $sentencia);
+    if (mysqli_num_rows($rs) > 0) {
+        $datos = [];
+        while ($row = mysqli_fetch_assoc($rs)) {
+            $datos[] = $row;
+        }
+        echo json_encode(array('estado' => true, 'datos' => $datos));
+    } else {
+        echo json_encode(array('estado' => false, 'mensaje' => "No se encontraron productos para la fecha actual"));
+    }
+}
+
