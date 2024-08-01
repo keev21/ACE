@@ -936,6 +936,7 @@ if ($post['accion'] == 'cargar_productos') {
     }
     echo $respuesta;
 }
+
 // Guardar registro final
 if ($post['accion'] == 'guardar_registro_final') {
     $registro_inicial_id = $post['registro_inicial_id'];
@@ -971,32 +972,73 @@ if ($post['accion'] == 'ultimo_registro_inicial') {
     }
     echo $respuesta;
 }
+if ($post['accion'] == 'cargar_productos2') {
+    // Obtener la fecha actual en formato 'Y-m-d'
+    $fecha_actual = date('Y-m-d');
 
-
-if ($post['accion'] == 'cargar_productos') {
-    $fecha_actual = date("Y-m-d");
-
-    // Consultar la base de datos para obtener los productos de la fecha actual
-    $sentencia = sprintf("
-        SELECT p.nombre AS nombre, i.RI_CANTIDAD_INICIAL AS cantidadInicial, rf.RF_DINERO_TOTAL AS precio, 
-               rs.RS_GANANCIA_PERDIDA AS ganancia, rs.RS_PERDIDA_REGALADOS AS perdida, 
-               i.RI_CODIGO AS codigo
-        FROM inventario_registro_inicial i
-        JOIN inventario_registro_final rf ON i.RI_CODIGO = rf.RF_CODIGO
-        JOIN inventario_registro_resultado rs ON rf.RF_CODIGO = rs.RS_CODIGO
-        JOIN productos p ON i.RI_CODIGO = p.codigo
-        WHERE i.RI_FECHA = '$fecha_actual'
-    ");
+    // Consulta con LEFT JOIN y filtro por la fecha actual
+    $sentencia = "
+        SELECT 
+            p.id, 
+            p.nombre, 
+            p.pvp, 
+            iri.RI_CODIGO, 
+            iri.RI_CANTIDAD_INICIAL, 
+            iri.RI_FECHA, 
+            irf.RF_CODIGO, 
+            irf.RF_CANTIDAD_VENDIDA, 
+            irf.RF_DINERO_TOTAL, 
+            irf.RF_PRODUCTOS_MUESTRA, 
+            irf.RF_PRODUCTOS_DESECHADOS, 
+            irr.RS_CODIGO, 
+            irr.RS_GANANCIA_PERDIDA, 
+            irr.RS_PERDIDA_REGALADOS, 
+            irr.RS_PRODUCTOS_NO_VENDIDOS
+        FROM 
+            productos p
+        LEFT JOIN 
+            inventario_registro_inicial iri ON p.id = iri.PROD_CODIGO
+        LEFT JOIN 
+            inventario_registro_final irf ON iri.RI_CODIGO = irf.RF_CODIGO
+        LEFT JOIN 
+            inventario_registro_resultado irr ON irf.RF_CODIGO = irr.RS_CODIGO
+        WHERE 
+            iri.RI_FECHA = '$fecha_actual'
+    ";
 
     $rs = mysqli_query($mysqli, $sentencia);
-    if (mysqli_num_rows($rs) > 0) {
-        $datos = [];
-        while ($row = mysqli_fetch_assoc($rs)) {
-            $datos[] = $row;
-        }
-        echo json_encode(array('estado' => true, 'datos' => $datos));
-    } else {
-        echo json_encode(array('estado' => false, 'mensaje' => "No se encontraron productos para la fecha actual"));
-    }
-}
 
+    if (!$rs) {
+        $error = mysqli_error($mysqli);
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => "Error en la consulta: $error"));
+        echo $respuesta;
+        exit;
+    }
+
+    if (mysqli_num_rows($rs) > 0) {
+        $datos = array();
+        while ($row = mysqli_fetch_assoc($rs)) {
+            $datos[] = array(
+                'id' => $row['id'],
+                'nombre' => $row['nombre'],
+                'pvp' => $row['pvp'],
+                'RI_CODIGO' => $row['RI_CODIGO'],
+                'RI_CANTIDAD_INICIAL' => $row['RI_CANTIDAD_INICIAL'],
+                'RI_FECHA' => $row['RI_FECHA'],
+                'RF_CODIGO' => $row['RF_CODIGO'],
+                'RF_CANTIDAD_VENDIDA' => $row['RF_CANTIDAD_VENDIDA'],
+                'RF_DINERO_TOTAL' => $row['RF_DINERO_TOTAL'],
+                'RF_PRODUCTOS_MUESTRA' => $row['RF_PRODUCTOS_MUESTRA'],
+                'RF_PRODUCTOS_DESECHADOS' => $row['RF_PRODUCTOS_DESECHADOS'],
+                'RS_CODIGO' => $row['RS_CODIGO'],
+                'RS_GANANCIA_PERDIDA' => $row['RS_GANANCIA_PERDIDA'],
+                'RS_PERDIDA_REGALADOS' => $row['RS_PERDIDA_REGALADOS'],
+                'RS_PRODUCTOS_NO_VENDIDOS' => $row['RS_PRODUCTOS_NO_VENDIDOS']
+            );
+        }
+        $respuesta = json_encode(array('estado' => true, 'datos' => $datos));
+    } else {
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => "No se encontraron productos para la fecha actual"));
+    }
+    echo $respuesta;
+}

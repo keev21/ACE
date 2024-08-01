@@ -10,6 +10,7 @@ export class InventariomenuPage implements OnInit {
   showProductInfo: boolean = false;
   currentDate: string;
   productos: any[] = [];
+  selectedProduct: any;
 
   constructor(private http: HttpClient) { }
 
@@ -24,14 +25,11 @@ export class InventariomenuPage implements OnInit {
   }
 
   loadProducts() {
-    this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', { accion: 'cargar_productos' })
+    this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', { accion: 'cargar_productos2' })
       .subscribe(
         (response) => {
           if (response.estado) {
-            this.productos = response.datos.map(producto => ({
-              ...producto,
-              showInfo: false // Inicialmente, la información está oculta
-            }));
+            this.productos = response.datos;
           } else {
             console.error('Error al cargar productos:', response.mensaje);
           }
@@ -42,22 +40,24 @@ export class InventariomenuPage implements OnInit {
       );
   }
 
-  toggleProductInfo(producto) {
-    producto.showInfo = !producto.showInfo;
+  toggleProductInfo(product: any) {
+    if (this.selectedProduct === product) {
+      this.showProductInfo = !this.showProductInfo;
+    } else {
+      this.selectedProduct = product;
+      this.showProductInfo = true;
+    }
   }
 
   editarProducto(codigo: string) {
-    console.log('Editar producto con código:', codigo);
-    // Implementar lógica para editar producto
+    // Implementa la lógica para editar el producto
   }
 
   eliminarProducto(codigo: string) {
-    console.log('Eliminar producto con código:', codigo);
-    // Implementar lógica para eliminar producto
+    // Implementa la lógica para eliminar el producto
   }
 
   actualizarProducto(codigo: string) {
-    console.log('Actualizar producto con código:', codigo);
-    // Implementar lógica para actualizar producto
+    // Implementa la lógica para actualizar el producto
   }
 }
