@@ -7,12 +7,11 @@ import { HttpClient } from '@angular/common/http';
   styleUrls: ['./inventariomenu.page.scss'],
 })
 export class InventariomenuPage implements OnInit {
-  showProductInfo: boolean = false;
   currentDate: string;
   productos: any[] = [];
-  selectedProduct: any;
+  productInfoVisible: { [key: number]: boolean } = {};
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   ngOnInit() {
     this.currentDate = this.getCurrentDate();
@@ -30,6 +29,10 @@ export class InventariomenuPage implements OnInit {
         (response) => {
           if (response.estado) {
             this.productos = response.datos;
+            // Inicializar el estado de visibilidad para cada producto
+            this.productos.forEach(producto => {
+              this.productInfoVisible[producto.id] = false;
+            });
           } else {
             console.error('Error al cargar productos:', response.mensaje);
           }
@@ -40,13 +43,9 @@ export class InventariomenuPage implements OnInit {
       );
   }
 
-  toggleProductInfo(product: any) {
-    if (this.selectedProduct === product) {
-      this.showProductInfo = !this.showProductInfo;
-    } else {
-      this.selectedProduct = product;
-      this.showProductInfo = true;
-    }
+  toggleProductInfo(producto: any) {
+    // Cambiar el estado de visibilidad para el producto seleccionado
+    this.productInfoVisible[producto.id] = !this.productInfoVisible[producto.id];
   }
 
   editarProducto(codigo: string) {

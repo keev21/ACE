@@ -17,53 +17,55 @@
     </ion-row>
     <br>
 
-    <!-- Fila para el producto -->
-    <ion-row class="header-row" *ngFor="let producto of productos">
-      <ion-col class="header col-label" color="light">Producto</ion-col>
-      <ion-col class="data col-value">
-        {{ producto.nombre }}
-        <ion-button size="small" fill="clear" color="primary" (click)="toggleProductInfo(producto)">
-          <ion-icon slot="icon-only" [name]="showProductInfo && selectedProduct === producto ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
-        </ion-button>
-      </ion-col>
-    </ion-row>
-
-    <!-- Mostrar información del producto y opciones si showProductInfo es true -->
-    <ion-row *ngIf="showProductInfo && selectedProduct">
-      <ion-col class="header col-label" color="light">Cantidad</ion-col>
-      <ion-col class="data col-value">{{ selectedProduct.cantidadInicial }}</ion-col>
-    </ion-row>
-
-    <ion-row *ngIf="showProductInfo && selectedProduct">
-      <ion-col class="header col-label" color="light">Precio</ion-col>
-      <ion-col class="data col-value">{{ selectedProduct.precio }}</ion-col>
-    </ion-row>
-
-    <ion-row *ngIf="showProductInfo && selectedProduct">
-      <ion-col class="header col-label" color="light">Ganancia</ion-col>
-      <ion-col class="data col-value">{{ selectedProduct.ganancia }}</ion-col>
-    </ion-row>
-
-    <ion-row *ngIf="showProductInfo && selectedProduct">
-      <ion-col class="header col-label" color="light">Pérdida</ion-col>
-      <ion-col class="data col-value">{{ selectedProduct.perdida }}</ion-col>
-    </ion-row>
-
-    <ion-row *ngIf="showProductInfo && selectedProduct">
-      <ion-col class="header col-label" color="light">Opciones</ion-col>
-      <ion-col class="data col-value">
-        <div class="action-buttons">
-          <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto(selectedProduct.codigo)">
-            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+    <!-- Fila para cada producto y su detalle -->
+    <ng-container *ngFor="let producto of productos">
+      <ion-row class="header-row">
+        <ion-col class="header col-label" color="light">Producto</ion-col>
+        <ion-col class="data col-value">
+          {{ producto.nombre }}
+          <ion-button size="small" fill="clear" color="primary" (click)="toggleProductInfo(producto)">
+            <ion-icon slot="icon-only" [name]="productInfoVisible[producto.id] ? 'chevron-up-outline' : 'chevron-down-outline'"></ion-icon>
           </ion-button>
-          <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(selectedProduct.codigo)">
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-button>
-          <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto(selectedProduct.codigo)">
-            <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
-          </ion-button>
-        </div>
-      </ion-col>
-    </ion-row>
+        </ion-col>
+      </ion-row>
+
+      <!-- Detalles del producto, visibles solo si está seleccionado -->
+      <ion-row *ngIf="productInfoVisible[producto.id]">
+        <ion-col class="header col-label" color="light">Cantidad</ion-col>
+        <ion-col class="data col-value">{{ producto.RI_CANTIDAD_INICIAL }}</ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="productInfoVisible[producto.id]">
+        <ion-col class="header col-label" color="light">Precio</ion-col>
+        <ion-col class="data col-value">{{ producto.pvp }}</ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="productInfoVisible[producto.id]">
+        <ion-col class="header col-label" color="light">Ganancia</ion-col>
+        <ion-col class="data col-value">{{ producto.RS_GANANCIA_PERDIDA }}</ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="productInfoVisible[producto.id]">
+        <ion-col class="header col-label" color="light">Pérdida</ion-col>
+        <ion-col class="data col-value">{{ producto.RS_PERDIDA_REGALADOS }}</ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="productInfoVisible[producto.id]">
+        <ion-col class="header col-label" color="light">Opciones</ion-col>
+        <ion-col class="data col-value">
+          <div class="action-buttons">
+            <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto(producto.id)">
+              <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+            </ion-button>
+            <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.id)">
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+            <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto(producto.id)">
+              <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ng-container>
   </ion-grid>
 </ion-content>
