@@ -29,6 +29,7 @@ export class InventariomenuPage implements OnInit {
         (response) => {
           if (response.estado) {
             this.productos = response.datos;
+            console.log(this.productos); // Asegúrate de que los datos sean correctos
             // Inicializar el estado de visibilidad para cada producto
             this.productos.forEach(producto => {
               this.productInfoVisible[producto.id] = false;

@@ -31,7 +31,7 @@
 
       <!-- Detalles del producto, visibles solo si está seleccionado -->
       <ion-row *ngIf="productInfoVisible[producto.id]">
-        <ion-col class="header col-label" color="light">Cantidad</ion-col>
+        <ion-col class="header col-label" color="light">Cantidad inicial</ion-col>
         <ion-col class="data col-value">{{ producto.RI_CANTIDAD_INICIAL }}</ion-col>
       </ion-row>
 
@@ -41,13 +41,13 @@
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">
-        <ion-col class="header col-label" color="light">Ganancia</ion-col>
-        <ion-col class="data col-value">{{ producto.RS_GANANCIA_PERDIDA }}</ion-col>
+        <ion-col class="header col-label" color="light">Cantidad vendida</ion-col>
+        <ion-col class="data col-value">{{ producto.RF_CANTIDAD_VENDIDA }}</ion-col>
       </ion-row>
-
+      
       <ion-row *ngIf="productInfoVisible[producto.id]">
-        <ion-col class="header col-label" color="light">Pérdida</ion-col>
-        <ion-col class="data col-value">{{ producto.RS_PERDIDA_REGALADOS }}</ion-col>
+        <ion-col class="header col-label" color="light">Precio total vendido</ion-col>
+        <ion-col class="data col-value">{{ producto.RF_DINERO_TOTAL }}</ion-col>
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">

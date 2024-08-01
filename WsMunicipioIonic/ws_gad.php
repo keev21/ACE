@@ -989,19 +989,13 @@ if ($post['accion'] == 'cargar_productos2') {
             irf.RF_CANTIDAD_VENDIDA, 
             irf.RF_DINERO_TOTAL, 
             irf.RF_PRODUCTOS_MUESTRA, 
-            irf.RF_PRODUCTOS_DESECHADOS, 
-            irr.RS_CODIGO, 
-            irr.RS_GANANCIA_PERDIDA, 
-            irr.RS_PERDIDA_REGALADOS, 
-            irr.RS_PRODUCTOS_NO_VENDIDOS
+            irf.RF_PRODUCTOS_DESECHADOS
         FROM 
             productos p
         LEFT JOIN 
             inventario_registro_inicial iri ON p.id = iri.PROD_CODIGO
         LEFT JOIN 
-            inventario_registro_final irf ON iri.RI_CODIGO = irf.RF_CODIGO
-        LEFT JOIN 
-            inventario_registro_resultado irr ON irf.RF_CODIGO = irr.RS_CODIGO
+            inventario_registro_final irf ON iri.RI_CODIGO = irf.RI_CODIGO
         WHERE 
             iri.RI_FECHA = '$fecha_actual'
     ";
@@ -1029,11 +1023,7 @@ if ($post['accion'] == 'cargar_productos2') {
                 'RF_CANTIDAD_VENDIDA' => $row['RF_CANTIDAD_VENDIDA'],
                 'RF_DINERO_TOTAL' => $row['RF_DINERO_TOTAL'],
                 'RF_PRODUCTOS_MUESTRA' => $row['RF_PRODUCTOS_MUESTRA'],
-                'RF_PRODUCTOS_DESECHADOS' => $row['RF_PRODUCTOS_DESECHADOS'],
-                'RS_CODIGO' => $row['RS_CODIGO'],
-                'RS_GANANCIA_PERDIDA' => $row['RS_GANANCIA_PERDIDA'],
-                'RS_PERDIDA_REGALADOS' => $row['RS_PERDIDA_REGALADOS'],
-                'RS_PRODUCTOS_NO_VENDIDOS' => $row['RS_PRODUCTOS_NO_VENDIDOS']
+                'RF_PRODUCTOS_DESECHADOS' => $row['RF_PRODUCTOS_DESECHADOS']
             );
         }
         $respuesta = json_encode(array('estado' => true, 'datos' => $datos));
