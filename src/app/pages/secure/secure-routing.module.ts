@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
+  
   {
     path: '',
     loadChildren: () => import('./../../tabs/tabs.module').then(m => m.TabsPageModule)
@@ -37,7 +38,8 @@ const routes: Routes = [
   {
     path: 'editinventario',
     loadChildren: () => import('./editinventario/editinventario.module').then( m => m.EditinventarioPageModule)
-  },  {
+  },
+  {
     path: 'inventarioregistro',
     loadChildren: () => import('./inventarioregistro/inventarioregistro.module').then( m => m.InventarioregistroPageModule)
   },

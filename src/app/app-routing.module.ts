@@ -3,6 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
+  
   {
     path: '',
     redirectTo: 'welcome',
@@ -49,6 +50,7 @@ const routes: Routes = [
         (m) => m.PasswordFormPageModule
       ),
   },
+  
 ];
 
 @NgModule({

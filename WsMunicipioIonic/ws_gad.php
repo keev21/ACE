@@ -894,6 +894,9 @@ if (isset($data['accion'])) {
             break;
     }
 }
+
+
+
 //INSERTAR PRODUCTO
 if ($post['accion'] == 'guardar_inventario') {
     $producto_id = $post['producto_id'];
@@ -1032,3 +1035,5 @@ if ($post['accion'] == 'cargar_productos2') {
     }
     echo $respuesta;
 }
+
+

@@ -2,10 +2,10 @@
   <ion-searchbar class="searchbar-spacing" color="medium" [(ngModel)]="searchTerm" (ionInput)="filterProductos($event)"
     placeholder="Buscar producto"></ion-searchbar>
 
-  <ion-button color="tertiary" routerLink="/inventarioregistro" class="floating-button button-spacing">
-    <ion-icon color="dark" name="duplicate-outline" class="icon-space"></ion-icon>
-    <strong>Registrar Inventario</strong>
-  </ion-button>
+    <ion-button color="tertiary" [routerLink]="['/inventarioregistro', { accion: 'nuevo' }]">
+      <ion-icon color="dark" name="duplicate-outline"></ion-icon>
+      <strong>Registrar Inventario</strong>
+    </ion-button>
 
   <ion-grid class="transparent-grid custom-table">
     <!-- Fila para la fecha actual -->
@@ -54,10 +54,11 @@
         <ion-col class="header col-label" color="light">Opciones</ion-col>
         <ion-col class="data col-value">
           <div class="action-buttons">
-            <ion-button size="small" fill="clear" color="tertiary" (click)="editarProducto(producto.id)">
+             <!-- ESTE ES EL BOTON DE editar, -->
+             <ion-button size="small" fill="clear" color="tertiary" [routerLink]="['/inventarioregistro', { accion: 'editar', producto_id: producto.id, RI_CODIGO: producto.RI_CODIGO, RF_CODIGO: producto.RF_CODIGO }]">
               <ion-icon slot="icon-only" name="create-outline"></ion-icon>
             </ion-button>
-            <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.id)">
+            <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.id)"> 
               <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
             </ion-button>
             <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto(producto.id)">

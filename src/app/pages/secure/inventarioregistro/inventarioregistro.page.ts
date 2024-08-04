@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-inventario-registro',
@@ -18,12 +19,28 @@ export class InventarioregistroPage implements OnInit {
   selledQuantity: number;
   giftProducts: number;
   wasteProducts: number;
+  totalMoney: number;
 
-  constructor(private http: HttpClient) {}
+  accion: string;
+  riCodigo: number;
+  rfCodigo: number;
+
+  constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.loadProducts();
     this.setCurrentDate();
+
+    this.route.queryParams.subscribe(params => {
+      this.accion = params['accion'];
+      this.riCodigo = params['ri_codigo'] || null;
+      this.rfCodigo = params['rf_codigo'] || null;
+
+      if (this.accion === 'editar' && this.riCodigo && this.rfCodigo) {
+        // AQUi poner el codigo para que me cargue los productos 
+        
+      }
+    });
   }
 
   loadProducts() {
@@ -94,6 +111,8 @@ export class InventarioregistroPage implements OnInit {
         }
       );
   }
+
+  
 
   saveFinal() {
     // Verifica que el pvp y la cantidad vendida estén disponibles
