@@ -31,16 +31,7 @@ export class InventarioregistroPage implements OnInit {
     this.loadProducts();
     this.setCurrentDate();
 
-    this.route.queryParams.subscribe(params => {
-      this.accion = params['accion'];
-      this.riCodigo = params['ri_codigo'] || null;
-      this.rfCodigo = params['rf_codigo'] || null;
 
-      if (this.accion === 'editar' && this.riCodigo && this.rfCodigo) {
-        // AQUi poner el codigo para que me cargue los productos 
-        
-      }
-    });
   }
 
   loadProducts() {
@@ -112,8 +103,6 @@ export class InventarioregistroPage implements OnInit {
       );
   }
 
-  
-
   saveFinal() {
     // Verifica que el pvp y la cantidad vendida estén disponibles
     if (!this.selectedPvp || !this.selledQuantity) {
@@ -146,4 +135,6 @@ export class InventarioregistroPage implements OnInit {
         }
       );
   }
+
+  
 }

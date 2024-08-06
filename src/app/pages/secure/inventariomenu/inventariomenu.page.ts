@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';  // Importa Router
 
 @Component({
   selector: 'app-inventariomenu',
@@ -11,7 +12,7 @@ export class InventariomenuPage implements OnInit {
   productos: any[] = [];
   productInfoVisible: { [key: number]: boolean } = {};
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}  // Agrega Router al constructor
 
   ngOnInit() {
     this.currentDate = this.getCurrentDate();
@@ -20,7 +21,7 @@ export class InventariomenuPage implements OnInit {
 
   getCurrentDate(): string {
     const now = new Date();
-    return now.toLocaleDateString('es-ES'); // Formato de fecha en español
+    return now.toLocaleDateString('es-ES');
   }
 
   loadProducts() {
@@ -29,8 +30,6 @@ export class InventariomenuPage implements OnInit {
         (response) => {
           if (response.estado) {
             this.productos = response.datos;
-            console.log(this.productos); // Asegúrate de que los datos sean correctos
-            // Inicializar el estado de visibilidad para cada producto
             this.productos.forEach(producto => {
               this.productInfoVisible[producto.id] = false;
             });
@@ -45,19 +44,18 @@ export class InventariomenuPage implements OnInit {
   }
 
   toggleProductInfo(producto: any) {
-    // Cambiar el estado de visibilidad para el producto seleccionado
     this.productInfoVisible[producto.id] = !this.productInfoVisible[producto.id];
   }
 
-  editarProducto(codigo: string) {
-    // Implementa la lógica para editar el producto
+  editarProducto(riCodigo: string, rfCodigo: string) {
+    this.router.navigate(['/editinventario', { ri_codigo: riCodigo, rf_codigo: rfCodigo }]);
   }
 
   eliminarProducto(codigo: string) {
-    // Implementa la lógica para eliminar el producto
+    // Lógica para eliminar el producto
   }
 
   actualizarProducto(codigo: string) {
-    // Implementa la lógica para actualizar el producto
+    // Lógica para actualizar el producto
   }
 }

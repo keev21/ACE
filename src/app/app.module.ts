@@ -7,12 +7,16 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 
 // ReactiveForms
 import { ReactiveFormsModule } from '@angular/forms';
 
 // NgCharts
 import { NgChartsModule } from 'ng2-charts';
+
+
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -22,6 +26,7 @@ import { NgChartsModule } from 'ng2-charts';
     IonicModule.forRoot(),
     ReactiveFormsModule,
     AppRoutingModule,
+    FormsModule,
     NgChartsModule,
     HttpClientModule
   ],

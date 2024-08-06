@@ -1036,4 +1036,86 @@ if ($post['accion'] == 'cargar_productos2') {
     echo $respuesta;
 }
 
+if ($post['accion'] == 'cargar_productos3') {
+    $ri_codigo = $post['ri_codigo'];
+    $rf_codigo = isset($post['rf_codigo']) && $post['rf_codigo'] !== '' ? $post['rf_codigo'] : null;
 
+    if ($rf_codigo === null) {
+        // Si RF_CODIGO es null o vacío, solo filtramos por RI_CODIGO
+        $sentencia = "
+            SELECT 
+                p.id, 
+                p.nombre, 
+                p.pvp, 
+                iri.RI_CODIGO, 
+                iri.RI_CANTIDAD_INICIAL, 
+                iri.RI_FECHA
+            FROM 
+                inventario_registro_inicial iri
+            INNER JOIN 
+                productos p ON p.id = iri.PROD_CODIGO
+            WHERE 
+                iri.RI_CODIGO = ?
+        ";
+
+        $stmt = mysqli_prepare($mysqli, $sentencia);
+        mysqli_stmt_bind_param($stmt, "i", $ri_codigo);
+    } else {
+        // Si RF_CODIGO tiene un valor, filtrar por ambos códigos
+        $sentencia = "
+            SELECT 
+                p.id, 
+                p.nombre, 
+                p.pvp, 
+                iri.RI_CODIGO, 
+                iri.RI_CANTIDAD_INICIAL, 
+                iri.RI_FECHA, 
+                irf.RF_CODIGO, 
+                irf.RF_CANTIDAD_VENDIDA, 
+                irf.RF_DINERO_TOTAL, 
+                irf.RF_PRODUCTOS_MUESTRA, 
+                irf.RF_PRODUCTOS_DESECHADOS
+            FROM 
+                inventario_registro_inicial iri
+            INNER JOIN 
+                productos p ON p.id = iri.PROD_CODIGO
+            LEFT JOIN 
+                inventario_registro_final irf ON iri.RI_CODIGO = irf.RI_CODIGO
+            WHERE 
+                iri.RI_CODIGO = ? AND (irf.RF_CODIGO = ? OR irf.RF_CODIGO IS NULL)
+        ";
+
+        $stmt = mysqli_prepare($mysqli, $sentencia);
+        mysqli_stmt_bind_param($stmt, "ii", $ri_codigo, $rf_codigo);
+    }
+
+    if (mysqli_stmt_execute($stmt)) {
+        $result = mysqli_stmt_get_result($stmt);
+        if (mysqli_num_rows($result) > 0) {
+            $datos = array();
+            while ($row = mysqli_fetch_assoc($result)) {
+                $datos[] = array(
+                    'id' => $row['id'],
+                    'nombre' => $row['nombre'],
+                    'pvp' => $row['pvp'],
+                    'RI_CODIGO' => $row['RI_CODIGO'],
+                    'RI_CANTIDAD_INICIAL' => $row['RI_CANTIDAD_INICIAL'],
+                    'RI_FECHA' => $row['RI_FECHA'],
+                    'RF_CODIGO' => isset($row['RF_CODIGO']) ? $row['RF_CODIGO'] : null,
+                    'RF_CANTIDAD_VENDIDA' => isset($row['RF_CANTIDAD_VENDIDA']) ? $row['RF_CANTIDAD_VENDIDA'] : 0,
+                    'RF_DINERO_TOTAL' => isset($row['RF_DINERO_TOTAL']) ? $row['RF_DINERO_TOTAL'] : 0,
+                    'RF_PRODUCTOS_MUESTRA' => isset($row['RF_PRODUCTOS_MUESTRA']) ? $row['RF_PRODUCTOS_MUESTRA'] : 0,
+                    'RF_PRODUCTOS_DESECHADOS' => isset($row['RF_PRODUCTOS_DESECHADOS']) ? $row['RF_PRODUCTOS_DESECHADOS'] : 0
+                );
+            }
+            $respuesta = json_encode(array('estado' => true, 'datos' => $datos));
+        } else {
+            $respuesta = json_encode(array('estado' => false, 'mensaje' => "No se encontraron registros con los códigos proporcionados"));
+        }
+    } else {
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => 'Error en la consulta: ' . mysqli_stmt_error($stmt)));
+    }
+
+    mysqli_stmt_close($stmt);
+    echo $respuesta;
+}

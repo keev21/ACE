@@ -1,9 +1,21 @@
+<ion-header collapse="fade" [translucent]="true">
+  <ion-toolbar color="dark">
+    
+    <ion-title color="light">
+      Inventario Menu
+    </ion-title>
+    
+  </ion-toolbar>
+</ion-header>
+
+
 <ion-content>
+  
   <ion-searchbar class="searchbar-spacing" color="medium" [(ngModel)]="searchTerm" (ionInput)="filterProductos($event)"
     placeholder="Buscar producto"></ion-searchbar>
 
-    <ion-button color="tertiary" [routerLink]="['/inventarioregistro', { accion: 'nuevo' }]">
-      <ion-icon color="dark" name="duplicate-outline"></ion-icon>
+    <ion-button color="danger" [routerLink]="['/inventarioregistro', { accion: 'nuevo' }]">
+      <ion-icon color="light" name="duplicate-outline"></ion-icon>
       <strong>Registrar Inventario</strong>
     </ion-button>
 
@@ -55,15 +67,13 @@
         <ion-col class="data col-value">
           <div class="action-buttons">
              <!-- ESTE ES EL BOTON DE editar, -->
-             <ion-button size="small" fill="clear" color="tertiary" [routerLink]="['/inventarioregistro', { accion: 'editar', producto_id: producto.id, RI_CODIGO: producto.RI_CODIGO, RF_CODIGO: producto.RF_CODIGO }]">
+             <ion-button size="small" fill="clear" color="tertiary" [routerLink]="['/editinventario', { ri_codigo: producto.RI_CODIGO, rf_codigo: producto.RF_CODIGO }]">
               <ion-icon slot="icon-only" name="create-outline"></ion-icon>
             </ion-button>
-            <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.id)"> 
+            <ion-button size="small" fill="clear" color="danger" (click)="eliminarProducto(producto.RI_CODIGO)"> 
               <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
             </ion-button>
-            <ion-button size="small" fill="clear" color="primary" (click)="actualizarProducto(producto.id)">
-              <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
-            </ion-button>
+            
           </div>
         </ion-col>
       </ion-row>
