@@ -896,7 +896,6 @@ if (isset($data['accion'])) {
 }
 
 
-
 // INSERTAR PRODUCTO
 if ($post['accion'] == 'guardar_inventario') {
     $producto_id = $post['producto_id'];
@@ -918,7 +917,20 @@ if ($post['accion'] == 'guardar_inventario') {
 
         // Ejecutar la consulta y verificar si fue exitosa
         if (mysqli_stmt_execute($stmt_final)) {
-            $respuesta = json_encode(array('estado' => true, 'mensaje' => 'Datos guardados exitosamente'));
+            // Obtener el ID autoincremental de la fila recién insertada en inventario_registro_final
+            $rf_codigo = mysqli_insert_id($mysqli);
+
+            // Preparar la consulta para insertar en inventario_registro_resultado
+            $stmt_resultado = mysqli_prepare($mysqli, "INSERT INTO inventario_registro_resultado (RS_CODIGO, RS_GANANCIA_PERDIDA, RS_PERDIDA_REGALADOS, RS_PRODUCTOS_NO_VENDIDOS, RF_CODIGO) VALUES (NULL, 0, 0, 0, ?)");
+            mysqli_stmt_bind_param($stmt_resultado, "i", $rf_codigo);
+
+            // Ejecutar la consulta y verificar si fue exitosa
+            if (mysqli_stmt_execute($stmt_resultado)) {
+                $respuesta = json_encode(array('estado' => true, 'mensaje' => 'Datos guardados exitosamente'));
+            } else {
+                $respuesta = json_encode(array('estado' => false, 'mensaje' => 'Error al guardar los datos en inventario_registro_resultado: ' . mysqli_stmt_error($stmt_resultado)));
+            }
+            mysqli_stmt_close($stmt_resultado);
         } else {
             $respuesta = json_encode(array('estado' => false, 'mensaje' => 'Error al guardar los datos en inventario_registro_final: ' . mysqli_stmt_error($stmt_final)));
         }
@@ -1177,11 +1189,44 @@ if ($post['accion'] == 'actualizar_registro_final') {
     mysqli_stmt_bind_param($stmt, "idiiii", $cantidad_vendida, $dinero_total, $productos_muestra, $productos_desechados, $rf_codigo, $ri_codigo);
 
     if (mysqli_stmt_execute($stmt)) {
-        $respuesta = json_encode(array('estado' => true));
+        // Obtener el PVP del producto
+        $query = "
+            SELECT p.pvp
+            FROM inventario_registro_inicial ri
+            JOIN productos p ON ri.PROD_CODIGO = p.id
+            WHERE ri.RI_CODIGO = ?
+        ";
+        $stmt = mysqli_prepare($mysqli, $query);
+        mysqli_stmt_bind_param($stmt, "i", $ri_codigo);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $pvp);
+        mysqli_stmt_fetch($stmt);
+        mysqli_stmt_close($stmt);
+
+        // Calcular los valores
+        $ganancia_perdida = $dinero_total;
+        $perdida_regalados = $pvp * $productos_muestra;
+        $productos_no_vendidos = $pvp * $productos_desechados;
+
+        // Actualizar en inventario_registro_resultado
+        $update_query = "
+            UPDATE inventario_registro_resultado
+            SET RS_GANANCIA_PERDIDA = ?, RS_PERDIDA_REGALADOS = ?, RS_PRODUCTOS_NO_VENDIDOS = ?
+            WHERE RF_CODIGO = ?
+        ";
+        $stmt = mysqli_prepare($mysqli, $update_query);
+        mysqli_stmt_bind_param($stmt, "dddi", $ganancia_perdida, $perdida_regalados, $productos_no_vendidos, $rf_codigo);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            $respuesta = json_encode(array('estado' => true));
+        } else {
+            $respuesta = json_encode(array('estado' => false, 'mensaje' => 'Error al actualizar en inventario_registro_resultado: ' . mysqli_stmt_error($stmt)));
+        }
+
+        mysqli_stmt_close($stmt);
     } else {
         $respuesta = json_encode(array('estado' => false, 'mensaje' => 'Error al actualizar el registro final: ' . mysqli_stmt_error($stmt)));
     }
 
-    mysqli_stmt_close($stmt);
     echo $respuesta;
 }
