@@ -75,12 +75,54 @@ export class EditinventarioPage implements OnInit {
   }
 
   saveProduct() {
-    // Implementa la lógica para guardar el producto inicial
-    console.log('Producto inicial guardado:', this.selectedProduct);
+    if (this.selectedProduct) {
+      const updateData = {
+        accion: 'actualizar_cantidad_inicial',
+        ri_codigo: this.selectedProduct.RI_CODIGO,
+        nueva_cantidad: this.initialQuantity
+      };
+  
+      this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', updateData)
+        .subscribe(
+          response => {
+            if (response.estado) {
+              console.log('Cantidad inicial actualizada correctamente.');
+            } else {
+              console.error('Error al actualizar cantidad inicial:', response.mensaje);
+            }
+          },
+          error => {
+            console.error('Error en la solicitud:', error);
+          }
+        );
+    }
   }
 
   saveFinal() {
-    // Implementa la lógica para guardar el producto final
-    console.log('Producto final guardado:', this.selectedProduct);
+    if (this.selectedProduct) {
+      const updateData = {
+        accion: 'actualizar_registro_final',
+        rf_codigo: this.selectedProduct.RF_CODIGO,
+        ri_codigo: this.selectedProduct.RI_CODIGO,
+        cantidad_vendida: this.selledQuantity,
+        productos_muestra: this.giftProducts,
+        productos_desechados: this.wasteProducts,
+        dinero_total: this.selledQuantity * this.selectedPvp
+      };
+  
+      this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', updateData)
+        .subscribe(
+          response => {
+            if (response.estado) {
+              console.log('Registro final actualizado correctamente.');
+            } else {
+              console.error('Error al actualizar registro final:', response.mensaje);
+            }
+          },
+          error => {
+            console.error('Error en la solicitud:', error);
+          }
+        );
+    }
   }
 }
