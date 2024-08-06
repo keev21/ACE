@@ -1003,7 +1003,7 @@ if ($post['accion'] == 'cargar_productos2') {
     // Obtener la fecha actual en formato 'Y-m-d'
     $fecha_actual = date('Y-m-d');
 
-    // Consulta con LEFT JOIN y filtro por la fecha actual
+    // Consulta con INNER JOIN y filtro por la fecha actual
     $sentencia = "
         SELECT 
             p.id, 
@@ -1016,13 +1016,18 @@ if ($post['accion'] == 'cargar_productos2') {
             irf.RF_CANTIDAD_VENDIDA, 
             irf.RF_DINERO_TOTAL, 
             irf.RF_PRODUCTOS_MUESTRA, 
-            irf.RF_PRODUCTOS_DESECHADOS
+            irf.RF_PRODUCTOS_DESECHADOS,
+            irr.RS_CODIGO,
+            irr.RS_GANANCIA_PERDIDA,
+            irr.RS_PERDIDA_REGALADOS + irr.RS_PRODUCTOS_NO_VENDIDOS AS RS_TOTAL_PERDIDA
         FROM 
             productos p
         LEFT JOIN 
             inventario_registro_inicial iri ON p.id = iri.PROD_CODIGO
         LEFT JOIN 
             inventario_registro_final irf ON iri.RI_CODIGO = irf.RI_CODIGO
+        INNER JOIN 
+            inventario_registro_resultado irr ON irf.RF_CODIGO = irr.RF_CODIGO
         WHERE 
             iri.RI_FECHA = '$fecha_actual'
     ";
@@ -1039,6 +1044,7 @@ if ($post['accion'] == 'cargar_productos2') {
     if (mysqli_num_rows($rs) > 0) {
         $datos = array();
         while ($row = mysqli_fetch_assoc($rs)) {
+            $total_muestra_desechados = $row['RF_PRODUCTOS_MUESTRA'] + $row['RF_PRODUCTOS_DESECHADOS'];
             $datos[] = array(
                 'id' => $row['id'],
                 'nombre' => $row['nombre'],
@@ -1050,7 +1056,11 @@ if ($post['accion'] == 'cargar_productos2') {
                 'RF_CANTIDAD_VENDIDA' => $row['RF_CANTIDAD_VENDIDA'],
                 'RF_DINERO_TOTAL' => $row['RF_DINERO_TOTAL'],
                 'RF_PRODUCTOS_MUESTRA' => $row['RF_PRODUCTOS_MUESTRA'],
-                'RF_PRODUCTOS_DESECHADOS' => $row['RF_PRODUCTOS_DESECHADOS']
+                'RF_PRODUCTOS_DESECHADOS' => $row['RF_PRODUCTOS_DESECHADOS'],
+                'RS_CODIGO' => $row['RS_CODIGO'],
+                'RS_GANANCIA_PERDIDA' => $row['RS_GANANCIA_PERDIDA'],
+                'RS_TOTAL_PERDIDA' => $row['RS_TOTAL_PERDIDA'],
+                'TOTAL_MUESTRA_DESECHADOS' => $total_muestra_desechados
             );
         }
         $respuesta = json_encode(array('estado' => true, 'datos' => $datos));
