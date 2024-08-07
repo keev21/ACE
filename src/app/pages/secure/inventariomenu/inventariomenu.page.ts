@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';  // Importa Router
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-inventariomenu',
@@ -12,7 +12,7 @@ export class InventariomenuPage implements OnInit {
   productos: any[] = [];
   productInfoVisible: { [key: number]: boolean } = {};
 
-  constructor(private http: HttpClient, private router: Router) {}  // Agrega Router al constructor
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit() {
     this.currentDate = this.getCurrentDate();
@@ -51,11 +51,20 @@ export class InventariomenuPage implements OnInit {
     this.router.navigate(['/editinventario', { ri_codigo: riCodigo, rf_codigo: rfCodigo }]);
   }
 
-  eliminarProducto(codigo: string) {
-    // Lógica para eliminar el producto
-  }
-
-  actualizarProducto(codigo: string) {
-    // Lógica para actualizar el producto
+  eliminarProducto(riCodigo: string) {
+    this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', { accion: 'eliminar', RI_CODIGO: riCodigo })
+      .subscribe(
+        (response) => {
+          if (response.estado) {
+            this.loadProducts(); // Recargar los productos después de la eliminación
+            console.log('Producto eliminado con éxito');
+          } else {
+            console.error('Error al eliminar producto:', response.mensaje);
+          }
+        },
+        (error) => {
+          console.error('Error en la solicitud:', error);
+        }
+      );
   }
 }

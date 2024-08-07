@@ -1240,3 +1240,39 @@ if ($post['accion'] == 'actualizar_registro_final') {
 
     echo $respuesta;
 }
+if ($post['accion'] == 'eliminar') {
+    $ri_codigo = $post['RI_CODIGO'];
+
+    // Primero, obtenemos el RF_CODIGO relacionado con el RI_CODIGO
+    $consulta_rf_codigo = "SELECT RF_CODIGO FROM inventario_registro_final WHERE RI_CODIGO = '$ri_codigo'";
+    $resultado_rf_codigo = mysqli_query($mysqli, $consulta_rf_codigo);
+
+    if (!$resultado_rf_codigo) {
+        $error = mysqli_error($mysqli);
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => "Error en la consulta: $error"));
+        echo $respuesta;
+        exit;
+    }
+
+    $rf_codigo = mysqli_fetch_assoc($resultado_rf_codigo)['RF_CODIGO'];
+
+    // Eliminar registros en inventario_registro_resultado
+    $sentencia_resultado = "DELETE FROM inventario_registro_resultado WHERE RF_CODIGO = '$rf_codigo'";
+    mysqli_query($mysqli, $sentencia_resultado);
+
+    // Eliminar registros en inventario_registro_final
+    $sentencia_final = "DELETE FROM inventario_registro_final WHERE RF_CODIGO = '$rf_codigo'";
+    mysqli_query($mysqli, $sentencia_final);
+
+    // Eliminar registros en inventario_registro_inicial
+    $sentencia_inicial = "DELETE FROM inventario_registro_inicial WHERE RI_CODIGO = '$ri_codigo'";
+    mysqli_query($mysqli, $sentencia_inicial);
+
+    if (mysqli_affected_rows($mysqli) > 0) {
+        $respuesta = json_encode(array('estado' => true, 'mensaje' => 'Producto eliminado con éxito'));
+    } else {
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => 'No se encontró el producto para eliminar'));
+    }
+
+    echo $respuesta;
+}
