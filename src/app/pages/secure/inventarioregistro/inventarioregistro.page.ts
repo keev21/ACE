@@ -15,23 +15,11 @@ export class InventarioregistroPage implements OnInit {
   productos: any[] = []; // Arreglo para almacenar los productos
   initialRecordId: number; // Para almacenar el ID del registro inicial
 
-  // Registro final
-  selledQuantity: number;
-  giftProducts: number;
-  wasteProducts: number;
-  totalMoney: number;
-
-  accion: string;
-  riCodigo: number;
-  rfCodigo: number;
-
   constructor(private http: HttpClient, private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.loadProducts();
     this.setCurrentDate();
-
-
   }
 
   loadProducts() {
@@ -60,7 +48,24 @@ export class InventarioregistroPage implements OnInit {
     const product = this.productos.find(p => p.id === this.productId);
     if (product) {
       this.selectedPvp = product.pvp;
+      this.loadInitialQuantity(this.productId); // Nueva función para obtener la cantidad inicial
     }
+  }
+
+  loadInitialQuantity(productId: string) {
+    this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', { accion: 'obtener_cantidad_inicial', producto_id: productId })
+      .subscribe(
+        (response) => {
+          if (response.estado) {
+            this.initialQuantity = response.cantidad_inicial;
+          } else {
+            console.error('Error al obtener la cantidad inicial:', response.mensaje);
+          }
+        },
+        (error) => {
+          console.error('Error en la solicitud:', error);
+        }
+      );
   }
 
   saveProduct() {
@@ -102,39 +107,4 @@ export class InventarioregistroPage implements OnInit {
         }
       );
   }
-
-  saveFinal() {
-    // Verifica que el pvp y la cantidad vendida estén disponibles
-    if (!this.selectedPvp || !this.selledQuantity) {
-      console.error('No se puede calcular el dinero total. PVP o cantidad vendida faltantes.');
-      return;
-    }
-
-    const dineroTotal = this.selledQuantity * parseFloat(this.selectedPvp);
-
-    const datos = {
-      accion: 'guardar_registro_final',
-      registro_inicial_id: this.initialRecordId,
-      cantidad_vendida: this.selledQuantity,
-      productos_muestra: this.giftProducts,
-      productos_desechados: this.wasteProducts,
-      dinero_total: dineroTotal,
-    };
-
-    this.http.post<any>('http://localhost/ACE/WsMunicipioIonic/ws_gad.php', datos)
-      .subscribe(
-        (response) => {
-          if (response.estado) {
-            console.log('Datos del registro final guardados exitosamente:', response.mensaje);
-          } else {
-            console.error('Error al guardar los datos del registro final:', response.mensaje);
-          }
-        },
-        (error) => {
-          console.error('Error en la solicitud:', error);
-        }
-      );
-  }
-
-  
 }

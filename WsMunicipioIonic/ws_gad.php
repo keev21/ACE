@@ -963,7 +963,34 @@ if ($post['accion'] == 'cargar_productos') {
     }
     echo $respuesta;
 }
+if ($post['accion'] == 'obtener_cantidad_inicial') {
+    $producto_id = $post['producto_id'];
 
+    $sentencia = "
+        SELECT 
+            iri.RI_CANTIDAD_INICIAL,
+            (irf.RF_CANTIDAD_VENDIDA + irf.RF_PRODUCTOS_MUESTRA + irf.RF_PRODUCTOS_DESECHADOS) AS total_vendido,
+            (iri.RI_CANTIDAD_INICIAL - (irf.RF_CANTIDAD_VENDIDA + irf.RF_PRODUCTOS_MUESTRA + irf.RF_PRODUCTOS_DESECHADOS)) AS cantidad_actual
+        FROM inventario_registro_inicial iri
+        INNER JOIN inventario_registro_final irf ON iri.RI_CODIGO = irf.RI_CODIGO
+        WHERE iri.PROD_CODIGO = '$producto_id'
+        ORDER BY iri.RI_FECHA DESC
+        LIMIT 1";
+
+    $rs = mysqli_query($mysqli, $sentencia);
+
+    if (mysqli_num_rows($rs) > 0) {
+        $row = mysqli_fetch_assoc($rs);
+        $respuesta = json_encode(array(
+            'estado' => true,
+            'cantidad_inicial' => $row['cantidad_actual']
+        ));
+    } else {
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => "No se encontró cantidad inicial para este producto"));
+    }
+
+    echo $respuesta;
+}
 // Guardar registro final
 if ($post['accion'] == 'guardar_registro_final') {
     $registro_inicial_id = $post['registro_inicial_id'];
