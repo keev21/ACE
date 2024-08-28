@@ -874,10 +874,11 @@ if ($post['accion'] == 'guardar_inventario') {
     $producto_id = $post['producto_id'];
     $cantidad_inicial = $post['cantidad_inicial'];
     $fecha_registro = $post['fecha_registro'];
+    $tipo_precio = $post['tipo_precio']; // Obtener el tipo de precio
 
     // Preparar la consulta para insertar en inventario_registro_inicial
-    $stmt_inicial = mysqli_prepare($mysqli, "INSERT INTO inventario_registro_inicial (RI_CANTIDAD_INICIAL, RI_FECHA, PROD_CODIGO) VALUES (?, ?, ?)");
-    mysqli_stmt_bind_param($stmt_inicial, "isi", $cantidad_inicial, $fecha_registro, $producto_id);
+    $stmt_inicial = mysqli_prepare($mysqli, "INSERT INTO inventario_registro_inicial (RI_CANTIDAD_INICIAL, RI_FECHA, RI_TIPOPRECIO, PROD_CODIGO) VALUES (?, ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt_inicial, "issi", $cantidad_inicial, $fecha_registro, $tipo_precio, $producto_id);
 
     // Ejecutar la consulta y verificar si fue exitosa
     if (mysqli_stmt_execute($stmt_inicial)) {
@@ -923,7 +924,7 @@ if ($post['accion'] == 'cargar_productos') {
         error_log("ID Persona recibido: " . $id_persona); // Depuración
 
         // Consulta para obtener productos
-        $sentencia = "SELECT id, nombre, pvp FROM productos WHERE id_persona = ?";
+        $sentencia = "SELECT id, nombre, pvp, costo_distribucion FROM productos WHERE id_persona = ?";
         $stmt = $mysqli->prepare($sentencia);
         if (!$stmt) {
             error_log("Error en la preparación de la consulta: " . $mysqli->error);
@@ -942,7 +943,9 @@ if ($post['accion'] == 'cargar_productos') {
                 $datos[] = array(
                     'id' => $row['id'],
                     'nombre' => $row['nombre'],
-                    'pvp' => $row['pvp']
+                    'pvp' => $row['pvp'],
+                    'costo_distribucion'=> $row['costo_distribucion']
+                    
                 );
             }
             $respuesta = json_encode(array('estado' => true, 'datos' => $datos));
@@ -1026,15 +1029,17 @@ if ($post['accion'] == 'cargar_productos2') {
     // Obtener el id_persona del post
     $id_persona = isset($post['id_persona']) ? $post['id_persona'] : '';
 
-    // Consulta con INNER JOIN y filtro por la fecha actual y id_persona
-    $sentencia = "
+    // Consulta para 'Distribuidor'
+    $sentencia_distribuidor = "
         SELECT 
             p.id, 
             p.nombre, 
             p.pvp, 
+            p.costo_distribucion,
             iri.RI_CODIGO, 
             iri.RI_CANTIDAD_INICIAL, 
-            iri.RI_FECHA, 
+            iri.RI_FECHA,
+            iri.RI_TIPOPRECIO,
             irf.RF_CODIGO, 
             irf.RF_CANTIDAD_VENDIDA, 
             irf.RF_DINERO_TOTAL, 
@@ -1053,26 +1058,73 @@ if ($post['accion'] == 'cargar_productos2') {
             inventario_registro_resultado irr ON irf.RF_CODIGO = irr.RF_CODIGO
         WHERE 
             iri.RI_FECHA = '$fecha_actual' AND
-            p.id_persona = '$id_persona'
+            p.id_persona = '$id_persona' AND iri.RI_TIPOPRECIO='Distribuidor'
     ";
 
-    $rs = mysqli_query($mysqli, $sentencia);
+    // Ejecutar la consulta para 'Distribuidor'
+    $rs_distribuidor = mysqli_query($mysqli, $sentencia_distribuidor);
 
-    if (!$rs) {
+    if (!$rs_distribuidor) {
         $error = mysqli_error($mysqli);
         $respuesta = json_encode(array('estado' => false, 'mensaje' => "Error en la consulta: $error"));
         echo $respuesta;
         exit;
     }
 
-    if (mysqli_num_rows($rs) > 0) {
-        $datos = array();
-        while ($row = mysqli_fetch_assoc($rs)) {
+    // Consulta para 'PVP'
+    $sentencia_pvp = "
+        SELECT 
+            p.id, 
+            p.nombre, 
+            p.pvp, 
+            p.costo_distribucion,
+            iri.RI_CODIGO, 
+            iri.RI_CANTIDAD_INICIAL, 
+            iri.RI_FECHA,
+            iri.RI_TIPOPRECIO,
+            irf.RF_CODIGO, 
+            irf.RF_CANTIDAD_VENDIDA, 
+            irf.RF_DINERO_TOTAL, 
+            irf.RF_PRODUCTOS_MUESTRA, 
+            irf.RF_PRODUCTOS_DESECHADOS,
+            irr.RS_CODIGO,
+            irr.RS_GANANCIA_PERDIDA,
+            irr.RS_PERDIDA_REGALADOS + irr.RS_PRODUCTOS_NO_VENDIDOS AS RS_TOTAL_PERDIDA
+        FROM 
+            productos p
+        LEFT JOIN 
+            inventario_registro_inicial iri ON p.id = iri.PROD_CODIGO
+        LEFT JOIN 
+            inventario_registro_final irf ON iri.RI_CODIGO = irf.RI_CODIGO
+        INNER JOIN 
+            inventario_registro_resultado irr ON irf.RF_CODIGO = irr.RF_CODIGO
+        WHERE 
+            iri.RI_FECHA = '$fecha_actual' AND
+            p.id_persona = '$id_persona' AND iri.RI_TIPOPRECIO='PVP'
+    ";
+
+    // Ejecutar la consulta para 'PVP'
+    $rs_pvp = mysqli_query($mysqli, $sentencia_pvp);
+
+    if (!$rs_pvp) {
+        $error = mysqli_error($mysqli);
+        $respuesta = json_encode(array('estado' => false, 'mensaje' => "Error en la consulta: $error"));
+        echo $respuesta;
+        exit;
+    }
+
+    // Procesar resultados de ambas consultas
+    $datos = array();
+
+    // Procesar resultados de 'Distribuidor'
+    if (mysqli_num_rows($rs_distribuidor) > 0) {
+        while ($row = mysqli_fetch_assoc($rs_distribuidor)) {
             $total_muestra_desechados = $row['RF_PRODUCTOS_MUESTRA'] + $row['RF_PRODUCTOS_DESECHADOS'];
             $datos[] = array(
                 'id' => $row['id'],
                 'nombre' => $row['nombre'],
                 'pvp' => $row['pvp'],
+                'costo_distribucion' => $row['costo_distribucion'],
                 'RI_CODIGO' => $row['RI_CODIGO'],
                 'RI_CANTIDAD_INICIAL' => $row['RI_CANTIDAD_INICIAL'],
                 'RI_FECHA' => $row['RI_FECHA'],
@@ -1084,13 +1136,44 @@ if ($post['accion'] == 'cargar_productos2') {
                 'RS_CODIGO' => $row['RS_CODIGO'],
                 'RS_GANANCIA_PERDIDA' => $row['RS_GANANCIA_PERDIDA'],
                 'RS_TOTAL_PERDIDA' => $row['RS_TOTAL_PERDIDA'],
+                'RI_TIPOPRECIO' => $row['RI_TIPOPRECIO'],
                 'TOTAL_MUESTRA_DESECHADOS' => $total_muestra_desechados
             );
         }
+    }
+
+    // Procesar resultados de 'PVP'
+    if (mysqli_num_rows($rs_pvp) > 0) {
+        while ($row = mysqli_fetch_assoc($rs_pvp)) {
+            $total_muestra_desechados = $row['RF_PRODUCTOS_MUESTRA'] + $row['RF_PRODUCTOS_DESECHADOS'];
+            $datos[] = array(
+                'id' => $row['id'],
+                'nombre' => $row['nombre'],
+                'pvp' => $row['pvp'],
+                'costo_distribucion' => $row['costo_distribucion'],
+                'RI_CODIGO' => $row['RI_CODIGO'],
+                'RI_CANTIDAD_INICIAL' => $row['RI_CANTIDAD_INICIAL'],
+                'RI_FECHA' => $row['RI_FECHA'],
+                'RF_CODIGO' => $row['RF_CODIGO'],
+                'RF_CANTIDAD_VENDIDA' => $row['RF_CANTIDAD_VENDIDA'],
+                'RF_DINERO_TOTAL' => $row['RF_DINERO_TOTAL'],
+                'RF_PRODUCTOS_MUESTRA' => $row['RF_PRODUCTOS_MUESTRA'],
+                'RF_PRODUCTOS_DESECHADOS' => $row['RF_PRODUCTOS_DESECHADOS'],
+                'RS_CODIGO' => $row['RS_CODIGO'],
+                'RS_GANANCIA_PERDIDA' => $row['RS_GANANCIA_PERDIDA'],
+                'RS_TOTAL_PERDIDA' => $row['RS_TOTAL_PERDIDA'],
+                'RI_TIPOPRECIO' => $row['RI_TIPOPRECIO'],
+                'TOTAL_MUESTRA_DESECHADOS' => $total_muestra_desechados
+            );
+        }
+    }
+
+    if (!empty($datos)) {
         $respuesta = json_encode(array('estado' => true, 'datos' => $datos));
     } else {
         $respuesta = json_encode(array('estado' => false, 'mensaje' => "No se encontraron productos para la fecha actual"));
     }
+
     echo $respuesta;
 }
 

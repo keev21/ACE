@@ -1,6 +1,6 @@
 <ion-header collapse="fade" [translucent]="true">
   <ion-toolbar color="dark">
-    <ion-title color="light"> Inventario Menu </ion-title>
+    <ion-title color="light">Inventario Menu</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -51,53 +51,44 @@
 
       <!-- Detalles del producto, visibles solo si está seleccionado -->
       <ion-row *ngIf="productInfoVisible[producto.id]">
-        <ion-col class="header col-label" color="light"
-          >Cantidad inicial</ion-col
-        >
-        <ion-col class="data col-value"
-          >{{ producto.RI_CANTIDAD_INICIAL }}</ion-col
-        >
+        <ion-col class="header col-label" color="light">Cantidad inicial</ion-col>
+        <ion-col class="data col-value">{{ producto.RI_CANTIDAD_INICIAL }}</ion-col>
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">
-        <ion-col class="header col-label" color="light">Precio</ion-col>
-        <ion-col class="data col-value">{{ producto.pvp }}</ion-col>
+        <ion-col class="header col-label" color="light">
+          {{ producto.RI_TIPOPRECIO === 'PVP' ? 'PVP' : 'Costo Distribución' }}
+        </ion-col>
+        <ion-col class="data col-value">
+          {{ producto.RI_TIPOPRECIO === 'PVP' ? producto.pvp : producto.costo_distribucion }}
+        </ion-col>
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">
-        <ion-col class="header col-label" color="light"
-          >Cantidad vendida</ion-col
-        >
-        <ion-col class="data col-value"
-          >{{ producto.RF_CANTIDAD_VENDIDA }}</ion-col
-        >
+        <ion-col class="header col-label" color="light">Cantidad vendida</ion-col>
+        <ion-col class="data col-value">{{ producto.RF_CANTIDAD_VENDIDA }}</ion-col>
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">
         <ion-col class="header col-label" color="light">Ganancia</ion-col>
-        <ion-col class="data col-value"
-          >{{ producto.RS_GANANCIA_PERDIDA }}</ion-col
-        >
+        <ion-col class="data col-value">{{ producto.RS_GANANCIA_PERDIDA }}</ion-col>
       </ion-row>
+
       <ion-row *ngIf="productInfoVisible[producto.id]">
         <ion-col class="header col-label" color="light">Desechos</ion-col>
-        <ion-col class="data col-value"
-          >{{ producto.TOTAL_MUESTRA_DESECHADOS}}</ion-col
-        >
+        <ion-col class="data col-value">{{ producto.TOTAL_MUESTRA_DESECHADOS }}</ion-col>
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">
         <ion-col class="header col-label" color="light">Perdida</ion-col>
-        <ion-col class="data col-value"
-          >{{ producto.RS_TOTAL_PERDIDA }}</ion-col
-        >
+        <ion-col class="data col-value">{{ producto.RS_TOTAL_PERDIDA }}</ion-col>
       </ion-row>
 
       <ion-row *ngIf="productInfoVisible[producto.id]">
         <ion-col class="header col-label" color="light">Opciones</ion-col>
         <ion-col class="data col-value">
           <div class="action-buttons">
-            <!-- ESTE ES EL BOTON DE editar, -->
+            <!-- Botón de editar -->
             <ion-button
               size="small"
               fill="clear"
